@@ -1,0 +1,157 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_squareroot/content
+
+    Template purpose and description.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+    }
+}}
+
+<style>
+    .page-solver {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .block-solver {
+      display: flex;
+      height: 40%;
+      background-color: #fffaa9;
+      flex-direction: column;
+      border: 1px solid black;
+    }
+    
+    .name-solver {
+      flex-wrap: wrap;
+      justify-content: center;
+      list-style-type: none;
+    }
+    
+    .list-solver {
+      margin: 20px auto;
+    }
+    
+    .bottom-solver {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 2% 20%;
+    }
+    
+    .link-solver {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .input-solver {
+        border-radius: 15px;
+        text-align: center;
+    }
+    
+    .a-solver {
+      display: flex;
+      justify-content: center;
+    }
+</style>
+
+<script>
+  function checkIsValid(event){
+  			let elementId = event.target.id;
+  			let element = document.getElementById(event.target.id);
+  
+  			if ((event.keyCode <48 || event.keyCode> 57)  && //numbers
+  					(event.keyCode <96 || event.keyCode> 105) && // numPad numbers
+  					event.key != '-' && event.key != '.'
+  					)
+  			{
+  				event.preventDefault();	//do not enter this symbol
+  			}
+  
+  			if (event.key == '-' && element.value.length != 0) event.preventDefault(); // '-' only at 1st pos
+  
+  			if (event.key == '.' && element.value.indexOf('.') >-1		//only one '.'
+  			) event.preventDefault();	//do not enter this symbol
+  
+  		};
+</script>
+
+<div class='page-solver'>
+  <div class="block-solver">
+    <ul class="name-solver">
+      <li><h3>Решение квадратного уравнения</h3></li>
+      <li class="list-solver">Введите коэффициент a <input type="text" class="input-solver" id = "id_a" onkeypress="checkIsValid(event)"/></li>
+      <li class="list-solver">Введите коэффициент b <input type="text" class="input-solver" id = "id_b" onkeypress="checkIsValid(event)"/></li>
+      <li class="list-solver">Введите коэффициент c <input type="text" class="input-solver" id = "id_c" onkeypress="checkIsValid(event)"/></li>
+    </ul>
+    <div class="bottom-solver">
+        <button onclick='
+
+            const data = {
+
+                a: parseFloat(document.getElementById("id_a").value),
+                b: parseFloat(document.getElementById("id_b").value),
+                c: parseFloat(document.getElementById("id_c").value)
+            };
+
+            const urlEncodedData = new URLSearchParams(data).toString();
+
+            fetch("{{urlSolve}}",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: urlEncodedData,
+            })
+            .then(response=>response.json())
+            .then(result => {
+                ttt = result;
+                console.log(ttt);
+                if (Object.keys(result).length >= 1) document.getElementById("span_result").innerText = result["result"];
+                else console.log("No data from Server");
+
+                if (Object.keys(result).length >= 2) document.getElementById("x1_result").innerText = "X1 = " + result["x1"];
+                else document.getElementById("x1_result").innerText = "";
+                
+                if (Object.keys(result).length >= 3) document.getElementById("x2_result").innerText = "X2 = " + result["x2"];
+                else document.getElementById("x2_result").innerText = "";
+            });
+        '>Gett</button>
+        <div id="result" style = "font-weight: 700;">
+          <ul style="list-style-type: none; margin-bottom:0;">
+            <li> <span style="color:red;" id="span_result"></span> </li>
+            <li> <span style="color:green;" id="x1_result"></span> </li>
+            <li> <span style="color:blue;" id="x2_result"></span> </li>
+          </ul>
+        </div>
+    </div>
+    <div class="a-solver">
+      <a href='{{urlHistory}}' class="link-solver">История</a>
+    </div>
+  </div>
+</div>
